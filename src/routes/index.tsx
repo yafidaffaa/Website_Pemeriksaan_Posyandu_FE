@@ -3,9 +3,9 @@ import { Routes, Route } from "react-router-dom";
 import Login from "../pages/Login";
 import Home from "../pages/Home";
 import PasienBalita from "../pages/pasien/Pasien";
-import TambahPasien from "../pages/pasien/tambahpasien";
+import TambahPasien from "../pages/pasien/TambahPasien";
 import DetailPasien from "../pages/pasien/DetailPasien";
-import Checkup from "../pages/Checkup";
+import Checkup from "../pages/checkup/Checkup";
 
 const AppRoutes = () => {
   return (

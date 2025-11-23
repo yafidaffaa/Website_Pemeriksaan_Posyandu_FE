@@ -9,36 +9,54 @@ import {
   Plus,
   Search,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import API from "../../api/axiosInstance";
 
 const Pasien = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<"balita" | "ibuHamil">("balita");
+  
+  const getInitialFilter = (): "balita" | "ibuHamil" => {
+    if (location.state?.filter) {
+      return location.state.filter;
+    }
+    const savedFilter = localStorage.getItem("lastPatientFilter");
+    if (savedFilter === "balita" || savedFilter === "ibuHamil") {
+      return savedFilter as "balita" | "ibuHamil";
+    }
+    return "balita";
+  };
+
+  const [filter, setFilter] = useState<"balita" | "ibuHamil">(getInitialFilter());
   const [dataPasien, setDataPasien] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const navigate = useNavigate();
   const kader = JSON.parse(localStorage.getItem("user") || "{}");
 
-  // ✅ Fetch data pasien dari server
+  useEffect(() => {
+    localStorage.setItem("lastPatientFilter", filter);
+  }, [filter]);
+
   const fetchPasien = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
 
-      const res = await fetch("http://10.200.180.222:3000/api/pasien", {
+      const res = await API.get("/api/pasien", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      const json = await res.json();
+      const data = await res.data;
 
-      if (res.ok && json.success) {
-        setDataPasien(json.data || []);
+      if (data.success) {
+        setDataPasien(data.data || []);
       } else {
-        console.error("Gagal memuat data pasien:", json.message);
+        console.error("Gagal memuat data pasien:", data.message);
       }
     } catch (error) {
       console.error("Error fetch pasien:", error);
@@ -47,12 +65,12 @@ const Pasien = () => {
     }
   };
 
-  // ✅ Logout handler
   const handleLogout = async () => {
     try {
       const token = localStorage.getItem("token");
-      await fetch("http://10.200.180.222:3000/api/logout", {
-        method: "POST",
+      await API.post(
+      "/api/logout",{}, 
+      {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -62,6 +80,7 @@ const Pasien = () => {
     } finally {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
+      localStorage.removeItem("lastPatientFilter");
       navigate("/");
     }
   };
@@ -72,13 +91,12 @@ const Pasien = () => {
 
   const handleNavigation = (name: string) => {
     setOpen(false);
-    if (name === "Dashboard") navigate("/home");
-    else if (name === "Pasien") navigate("/pasien");
-    else if (name === "Check Up") navigate("/checkup");
+    if (name === "Halaman Utama") navigate("/home");
+    else if (name === "Data Pasien") navigate("/pasien");
+    else if (name === "Pemeriksaan") navigate("/checkup");
     else if (name === "Logout") handleLogout();
   };
 
-  // ✅ Filter sesuai jenis pasien & pencarian
   const filteredData = dataPasien
     .filter((item) =>
       filter === "balita"
@@ -88,13 +106,18 @@ const Pasien = () => {
     .filter((item) => item.name?.toLowerCase().includes(search.toLowerCase()));
 
   const handleRowClick = (id: number) => {
-  navigate(`/detailpasien/${id}?type=${filter === "ibuHamil" ? "ibu_hamil" : "balita"}`);
-};
+    navigate(
+      `/detailpasien/${id}?type=${filter === "ibuHamil" ? "ibu_hamil" : "balita"}`,
+      { state: { filter } }
+    );
+  };
 
+  const handleTambahPasien = () => {
+    navigate(`/tambahpasien?type=${filter}`, { state: { filter } });
+  };
 
   return (
     <div className="min-h-screen flex bg-gradient-to-b from-blue-50 to-white text-gray-800 relative overflow-hidden">
-      {/* Sidebar */}
       <aside
         className={`fixed top-0 left-0 h-full w-64 z-40
           bg-teal-700 text-white border-r border-teal-800 shadow-2xl
@@ -103,9 +126,14 @@ const Pasien = () => {
         `}
       >
         <div className="flex items-center justify-between p-5 border-b border-white/30">
-          <h2 className="font-bold text-xl tracking-wide text-white drop-shadow-lg">
-            POSYANDU
-          </h2>
+          <div className="flex items-center justify-between p-1">
+          <div>
+            <h2 className="font-bold text-xl tracking-wide text-white drop-shadow-lg">
+              POSYANDU
+            </h2>
+            <p className="text-xs text-white/80 mt-1">Bunga Lily Gendeng</p>
+          </div>
+        </div>
           <button
             onClick={() => setOpen(false)}
             className="p-2 rounded-lg hover:bg-white/20 transition md:hidden"
@@ -116,9 +144,9 @@ const Pasien = () => {
 
         <nav className="flex flex-col space-y-2 p-4">
           {[
-            { name: "Dashboard", icon: <LayoutDashboard className="w-5 h-5" /> },
-            { name: "Pasien", icon: <Users className="w-5 h-5" /> },
-            { name: "Check Up", icon: <HeartPulse className="w-5 h-5" /> },
+            { name: "Halaman Utama", icon: <LayoutDashboard className="w-5 h-5" /> },
+            { name: "Data Pasien", icon: <Users className="w-5 h-5" /> },
+            { name: "Pemeriksaan", icon: <HeartPulse className="w-5 h-5" /> },
             { name: "Logout", icon: <LogOut className="w-5 h-5" /> },
           ].map((item) => (
             <button
@@ -133,7 +161,6 @@ const Pasien = () => {
         </nav>
       </aside>
 
-      {/* Overlay */}
       {open && (
         <div
           className="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 transition-opacity duration-300"
@@ -141,13 +168,11 @@ const Pasien = () => {
         ></div>
       )}
 
-      {/* Main Content */}
       <main
         className={`flex-1 p-6 md:p-8 transition-all duration-500 ${
           open ? "blur-sm scale-[0.98]" : ""
         }`}
       >
-        {/* Header */}
         <div className="flex items-center gap-4 mb-10">
           <button
             onClick={() => setOpen(!open)}
@@ -164,7 +189,6 @@ const Pasien = () => {
           </div>
         </div>
 
-        {/* Filter & Tambah Data */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <div className="flex gap-3">
             <button
@@ -190,14 +214,13 @@ const Pasien = () => {
           </div>
 
           <button
-            onClick={() => navigate(`/tambahpasien?type=${filter}`)}
+            onClick={handleTambahPasien}
             className="flex items-center gap-2 bg-teal-600 text-white px-5 py-2 rounded-full shadow-md hover:bg-teal-700 transition-all duration-200"
           >
             <Plus className="w-4 h-4" /> Tambah Data
           </button>
         </div>
 
-        {/* Search */}
         <div className="flex items-center bg-white rounded-lg shadow px-4 py-2 mb-6">
           <Search className="text-gray-400 w-5 h-5" />
           <input
@@ -211,7 +234,6 @@ const Pasien = () => {
           />
         </div>
 
-        {/* Table */}
         <div className="overflow-x-auto">
           {loading ? (
             <div className="text-center py-8 text-gray-500">Memuat data...</div>
@@ -223,7 +245,6 @@ const Pasien = () => {
             <table className="w-full border-collapse rounded-lg shadow-lg overflow-hidden">
               <thead>
                 <tr className="bg-teal-700 text-white text-left">
-                  <th className="px-4 py-3">No</th>
                   <th className="px-4 py-3">Nama</th>
                   <th className="px-4 py-3">
                     {filter === "balita" ? "Nama Ibu" : "Nama Suami"}
@@ -233,18 +254,15 @@ const Pasien = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredData.map((item: any, i: number) => (
+                {filteredData.map((item: any) => (
                   <tr
                     key={item.id}
                     onClick={() => handleRowClick(item.id)}
                     className="border-b last:border-none hover:bg-teal-50 cursor-pointer transition"
                   >
-                    <td className="px-4 py-3">{i + 1}</td>
                     <td className="px-4 py-3">{item.name}</td>
                     <td className="px-4 py-3">
-                      {filter === "balita"
-                        ? item.motherName
-                        : item.namaSuami}
+                      {filter === "balita" ? item.motherName : item.namaSuami}
                     </td>
                     <td className="px-4 py-3">{item.rt}</td>
                     <td className="px-4 py-3">
@@ -266,7 +284,7 @@ const Pasien = () => {
         </div>
 
         <footer className="mt-12 text-center text-gray-500 text-sm">
-          © 2025 Posyandu Digital. All rights reserved.
+          © 2025 Posyandu Bunga Lily Gendeng. All rights reserved.
         </footer>
       </main>
     </div>
