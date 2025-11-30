@@ -26,7 +26,7 @@ export default function DetailPasien() {
     title: string;
     message: string;
     onConfirm: () => void;
-  }>({ show: false, title: '', message: '', onConfirm: () => {} });
+  }>({ show: false, title: '', message: '', onConfirm: () => { } });
 
   const queryParams = new URLSearchParams(location.search);
   const rawType = queryParams.get("type");
@@ -106,7 +106,7 @@ export default function DetailPasien() {
     try {
       const token = localStorage.getItem("token");
       await API.post(
-      "/api/pasien/add-to-queue",
+        "/api/pasien/add-to-queue",
         {
           pasienId: id,
           tanggal: new Date().toISOString().slice(0, 10),
@@ -153,12 +153,12 @@ export default function DetailPasien() {
 
   const renderField = (label: string, value: any, icon?: React.ReactNode) => (
     <div className="py-3 px-4 hover:bg-teal-50 rounded-lg transition-colors">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
         <div className="flex items-center gap-2 min-w-0">
           {icon && <div className="text-teal-600 flex-shrink-0">{icon}</div>}
           <span className="font-medium text-gray-600 text-sm">{label}</span>
         </div>
-        <span className="text-gray-800 text-right font-medium whitespace-pre-line flex-shrink-0">
+        <span className="text-gray-800 sm:text-right font-medium whitespace-pre-line break-words sm:flex-shrink-0">
           {value || "-"}
         </span>
       </div>
@@ -172,7 +172,7 @@ export default function DetailPasien() {
           {renderField("Nama Balita", pasien.name, <Baby className="w-4 h-4" />)}
           {renderField("Nama Ibu", pasien.motherName, <User className="w-4 h-4" />)}
           {renderField(
-            "Jenis Kelamin", 
+            "Jenis Kelamin",
             pasien.gender === "L" ? "Laki-laki" : pasien.gender === "P" ? "Perempuan" : "-",
             <User className="w-4 h-4" />
           )}

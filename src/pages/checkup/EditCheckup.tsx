@@ -1290,7 +1290,7 @@ const EditCheckup = ({ checkupSessionId, measurementData, type, onClose }: EditC
 
                   {shouldDisplayField('resiko') && (
                     <div className="flex flex-col gap-2 mb-4">
-                      <label className="font-semibold text-gray-900">Resiko</label>
+                      <label className="font-semibold text-gray-900">Resiko Lain</label>
                       <textarea
                         name="resiko"
                         value={formData.resiko || ""}

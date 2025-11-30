@@ -476,7 +476,7 @@ const DetailCheckup = ({ data, type, onClose }: DetailCheckupProps) => {
                     </div>
                   )}
                   
-                  {canSeeField('resiko') && renderField("Resiko", detailData?.resiko)}
+                  {canSeeField('resiko') && renderField("Resiko Lain", detailData?.resiko)}
                   {canSeeField('counselingNotes') && renderField("Catatan Konseling", detailData?.counselingNotes)}
                 </div>
               )}
