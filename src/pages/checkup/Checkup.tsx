@@ -20,7 +20,7 @@ const Checkup = () => {
   const [filter, setFilter] = useState("balita");
   const [filterBulan, setFilterBulan] = useState(new Date().getMonth() + 1);
   const [filterTahun, setFilterTahun] = useState(new Date().getFullYear());
-  
+
   interface CheckupItem {
     id: number;
     patient?: {
@@ -39,7 +39,7 @@ const Checkup = () => {
   const [role, setRole] = useState("");
   const [selectedCheckup, setSelectedCheckup] = useState<CheckupItem | null>(null);
   const [showExportModal, setShowExportModal] = useState(false);
-  
+
   const [alert, setAlert] = useState<{
     show: boolean;
     type: 'success' | 'error' | 'warning' | 'info';
@@ -47,7 +47,7 @@ const Checkup = () => {
     message: string;
     suggestion?: string;
   }>({ show: false, type: 'info', title: '', message: '' });
-  
+
   const navigate = useNavigate();
 
   const bulanList = [
@@ -86,8 +86,8 @@ const Checkup = () => {
   const handleLogout = async () => {
     try {
       await API.post(
-      "/api/auth/logout",
-      {}, {
+        "/api/auth/logout",
+        {}, {
         headers: {
           Authorization: `Bearer ${getToken()}`,
         },
@@ -159,84 +159,114 @@ const Checkup = () => {
   });
 
   const handlePrint = async (
-  type: "puskesmas" | "penerima-manfaat"
-): Promise<void> => {
-  try {
-    const month = String(filterBulan).padStart(2, "0");
-    const year = filterTahun;
-    const patientType = filter === "ibuHamil" ? "ibu_hamil" : "balita";
-    const patientTypeLabel = filter === "ibuHamil" ? "Ibu Hamil" : "Balita";
-    const monthName =
-      bulanList.find((b) => b.value === filterBulan)?.label || month;
+    type: "puskesmas" | "penerima-manfaat"
+  ): Promise<void> => {
+    try {
+      const month = String(filterBulan).padStart(2, "0");
+      const year = filterTahun;
+      const patientType = filter === "ibuHamil" ? "ibu_hamil" : "balita";
+      const patientTypeLabel = filter === "ibuHamil" ? "Ibu Hamil" : "Balita";
+      const monthName =
+        bulanList.find((b) => b.value === filterBulan)?.label || month;
 
-    let endpoint = "";
-    let typeLabel = "";
+      let endpoint = "";
+      let typeLabel = "";
 
-    if (type === "puskesmas") {
-      endpoint = "/api/measurement/export/puskesmas";
-      typeLabel = "Puskesmas";
-    } else {
-      endpoint = "/api/measurement/export/penerima-manfaat";
-      typeLabel = "Penerima Manfaat";
-    }
+      if (type === "puskesmas") {
+        endpoint = "/api/measurement/export/puskesmas";
+        typeLabel = "Puskesmas";
+      } else {
+        endpoint = "/api/measurement/export/penerima-manfaat";
+        typeLabel = "Penerima Manfaat";
+      }
 
-    const url =
-      type === "penerima-manfaat"
-        ? `${endpoint}?month=${month}&year=${year}`
-        : `${endpoint}?month=${month}&year=${year}&patientType=${patientType}`;
-
-    const response = await API.get(url, {
-      responseType: "blob",
-      headers: {
-        Authorization: `Bearer ${getToken()}`,
-      },
-    });
-
-    const blob = new Blob([response.data]);
-    const downloadUrl = window.URL.createObjectURL(blob);
-
-    const link = document.createElement("a");
-    link.href = downloadUrl;
-
-    const filename =
-      type === "penerima-manfaat"
-        ? `Penerima_Manfaat_Ibu_Hamil_${monthName}_${year}.xlsx`
-        : `Laporan_${typeLabel}_${patientTypeLabel}_${monthName}_${year}.xlsx`;
-
-    link.setAttribute("download", filename);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-
-    window.URL.revokeObjectURL(downloadUrl);
-    setShowExportModal(false);
-
-    setAlert({
-      show: true,
-      type: "success",
-      title: "Laporan Berhasil Diunduh",
-      message: `Laporan ${typeLabel} ${
+      const url =
         type === "penerima-manfaat"
-          ? "Ibu Hamil"
-          : `untuk ${patientTypeLabel}`
-      } bulan ${monthName} ${year} berhasil diunduh.`,
-      suggestion:
-        "File Excel telah tersimpan di folder Downloads Anda. Anda dapat membukanya dengan Microsoft Excel atau aplikasi spreadsheet lainnya.",
-    });
-  } catch (error: any) {
-    console.error("Gagal mencetak laporan:", error);
+          ? `${endpoint}?month=${month}&year=${year}`
+          : `${endpoint}?month=${month}&year=${year}&patientType=${patientType}`;
 
-    setAlert({
-      show: true,
-      type: "error",
-      title: "Gagal Mencetak Laporan",
-      message: error.message || "Terjadi kesalahan saat mencetak laporan.",
-      suggestion:
-        "Pastikan koneksi stabil dan data tersedia untuk periode yang dipilih. Jika masalah berlanjut, hubungi administrator.",
-    });
-  }
-};
+      const response = await API.get(url, {
+        responseType: "blob",
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
 
+      // ✅ CEK apakah response adalah JSON error (bukan blob)
+      const contentType = response.headers['content-type'];
+      if (contentType && contentType.includes('application/json')) {
+        // Parse blob sebagai JSON untuk mendapatkan pesan error
+        const text = await response.data.text();
+        const errorData = JSON.parse(text);
+
+        setAlert({
+          show: true,
+          type: "warning",
+          title: "Tidak Ada Data",
+          message: errorData.message || "Tidak ada data pemeriksaan untuk periode yang dipilih.",
+          suggestion: "Pastikan sudah ada data pemeriksaan yang diinput untuk bulan dan tahun yang dipilih."
+        });
+        setShowExportModal(false);
+        return;
+      }
+
+      // ✅ Jika response adalah blob (file Excel), lanjutkan download
+      const blob = new Blob([response.data]);
+      const downloadUrl = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+
+      const filename =
+        type === "penerima-manfaat"
+          ? `Penerima_Manfaat_Ibu_Hamil_${monthName}_${year}.xlsx`
+          : `Laporan_${typeLabel}_${patientTypeLabel}_${monthName}_${year}.xlsx`;
+
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      window.URL.revokeObjectURL(downloadUrl);
+      setShowExportModal(false);
+
+      setAlert({
+        show: true,
+        type: "success",
+        title: "Laporan Berhasil Diunduh",
+        message: `Laporan ${typeLabel} ${type === "penerima-manfaat"
+            ? "Ibu Hamil"
+            : `untuk ${patientTypeLabel}`
+          } bulan ${monthName} ${year} berhasil diunduh.`,
+        suggestion:
+          "File Excel telah tersimpan di folder Downloads Anda. Anda dapat membukanya dengan Microsoft Excel atau aplikasi spreadsheet lainnya.",
+      });
+    } catch (error: any) {
+      console.error("Gagal mencetak laporan:", error);
+
+      // ✅ Tangani error 404 dengan pesan yang lebih spesifik
+      if (error.response?.status === 404) {
+        setAlert({
+          show: true,
+          type: "warning",
+          title: "Tidak Ada Data",
+          message: error.response?.data?.message || "Tidak ada data pemeriksaan untuk periode yang dipilih.",
+          suggestion: "Pastikan sudah ada data pemeriksaan yang diinput untuk bulan dan tahun yang dipilih."
+        });
+      } else {
+        setAlert({
+          show: true,
+          type: "error",
+          title: "Gagal Mencetak Laporan",
+          message: error.response?.data?.message || error.message || "Terjadi kesalahan saat mencetak laporan.",
+          suggestion:
+            "Jika masalah berlanjut, hubungi administrator.",
+        });
+      }
+
+      setShowExportModal(false);
+    }
+  };
 
   const handleRowClick = async (item: CheckupItem) => {
     setSelectedCheckup(item);
@@ -261,9 +291,8 @@ const Checkup = () => {
       )}
 
       <aside
-        className={`fixed top-0 left-0 h-full w-64 z-40 bg-teal-700 text-white border-r border-teal-800 shadow-2xl transition-transform duration-500 ease-[cubic-bezier(0.77,0,0.175,1)] ${
-          open ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed top-0 left-0 h-full w-64 z-40 bg-teal-700 text-white border-r border-teal-800 shadow-2xl transition-transform duration-500 ease-[cubic-bezier(0.77,0,0.175,1)] ${open ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         <div className="flex items-center justify-between p-5 border-b border-white/20">
           <div className="flex items-center justify-between p-1">
@@ -311,9 +340,8 @@ const Checkup = () => {
       )}
 
       <main
-        className={`flex-1 p-6 md:p-8 transition-all duration-500 overflow-x-auto ${
-          open ? "blur-sm scale-[0.98]" : ""
-        }`}
+        className={`flex-1 p-6 md:p-8 transition-all duration-500 overflow-x-auto ${open ? "blur-sm scale-[0.98]" : ""
+          }`}
       >
         <div className="flex items-center gap-4 mb-10">
           <button
@@ -338,21 +366,19 @@ const Checkup = () => {
             <div className="flex gap-3">
               <button
                 onClick={() => setFilter("balita")}
-                className={`px-5 py-2 rounded-full font-medium shadow transition-all duration-200 ${
-                  filter === "balita"
+                className={`px-5 py-2 rounded-full font-medium shadow transition-all duration-200 ${filter === "balita"
                     ? "bg-teal-600 text-white shadow-md"
                     : "bg-white border border-teal-400 text-teal-600 hover:bg-teal-50"
-                }`}
+                  }`}
               >
                 Balita
               </button>
               <button
                 onClick={() => setFilter("ibuHamil")}
-                className={`px-5 py-2 rounded-full font-medium shadow transition-all duration-200 ${
-                  filter === "ibuHamil"
+                className={`px-5 py-2 rounded-full font-medium shadow transition-all duration-200 ${filter === "ibuHamil"
                     ? "bg-teal-600 text-white shadow-md"
                     : "bg-white border border-teal-400 text-teal-600 hover:bg-teal-50"
-                }`}
+                  }`}
               >
                 Ibu Hamil
               </button>
@@ -416,11 +442,10 @@ const Checkup = () => {
           <Search className="text-gray-400 w-5 h-5" />
           <input
             type="text"
-            placeholder={`Cari ${
-              filter === "balita"
+            placeholder={`Cari ${filter === "balita"
                 ? "nama ibu atau anak..."
                 : "nama ibu hamil..."
-            }`}
+              }`}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="ml-3 w-full outline-none text-gray-700"
@@ -477,22 +502,20 @@ const Checkup = () => {
                       <td className="px-4 py-3">{patient.rt}</td>
                       <td className="px-4 py-3">
                         <span
-                          className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-semibold ${
-                            patient.gender === "P"
+                          className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-semibold ${patient.gender === "P"
                               ? "bg-pink-100 text-pink-600"
                               : "bg-blue-100 text-blue-600"
-                          }`}
+                            }`}
                         >
                           {patient.gender}
                         </span>
                       </td>
                       <td className="px-4 py-3">
                         <span
-                          className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                            status
+                          className={`px-3 py-1 text-xs font-semibold rounded-full ${status
                               ? "bg-green-100 text-green-700"
                               : "bg-red-100 text-red-600"
-                          }`}
+                            }`}
                         >
                           {status ? "Sudah Lengkap" : "Belum Lengkap"}
                         </span>
@@ -513,11 +536,10 @@ const Checkup = () => {
                       </td>
                       <td className="px-4 py-3">
                         <span
-                          className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                            status
+                          className={`px-3 py-1 text-xs font-semibold rounded-full ${status
                               ? "bg-green-100 text-green-700"
                               : "bg-red-100 text-red-600"
-                          }`}
+                            }`}
                         >
                           {status ? "Sudah Lengkap" : "Belum Lengkap"}
                         </span>
@@ -544,7 +566,7 @@ const Checkup = () => {
             <p className="text-gray-600 mb-6">
               Pilih format laporan yang ingin Anda unduh untuk {filter === "balita" ? "Balita" : "Ibu Hamil"}
             </p>
-            
+
             <div className="space-y-3 mb-6">
               <button
                 onClick={() => handlePrint("puskesmas")}

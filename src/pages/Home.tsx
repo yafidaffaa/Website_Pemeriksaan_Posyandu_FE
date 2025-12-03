@@ -50,10 +50,10 @@ const Dashboard = () => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
+
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
+
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
@@ -130,11 +130,11 @@ const Dashboard = () => {
       try {
         const token = localStorage.getItem("token");
         const res = await API.get(
-        `/api/measurement/statistics/trends`,
-        {
-          params: { month: bulan, year: tahun },
-          headers: { Authorization: `Bearer ${token}` } 
-        }
+          `/api/measurement/statistics/trends`,
+          {
+            params: { month: bulan, year: tahun },
+            headers: { Authorization: `Bearer ${token}` }
+          }
         );
         const data = await res.data;
         if (data?.data) {
@@ -151,7 +151,7 @@ const Dashboard = () => {
   const handleLogout = async () => {
     try {
       const token = localStorage.getItem("token");
-      await API.post("/api/auth/logout",{},
+      await API.post("/api/auth/logout", {},
         {
           headers: { Authorization: `Bearer ${token}` }
         }
@@ -201,20 +201,20 @@ const Dashboard = () => {
     <div className="flex flex-wrap items-center justify-center gap-4 mt-4 pb-2">
       <div className="flex items-center gap-2">
         <div className="w-8 h-6 bg-red-600 rounded relative overflow-hidden">
-          <div className="absolute inset-0" 
-               style={{ 
-                 backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(0,0,0,0.4) 3px, rgba(0,0,0,0.4) 6px)'
-               }}>
+          <div className="absolute inset-0"
+            style={{
+              backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(0,0,0,0.4) 3px, rgba(0,0,0,0.4) 6px)'
+            }}>
           </div>
         </div>
         <span className="text-sm text-gray-700 font-medium">Balita Stunting</span>
       </div>
       <div className="flex items-center gap-2">
         <div className="w-8 h-6 bg-teal-600 rounded relative overflow-hidden">
-          <div className="absolute inset-0" 
-               style={{ 
-                 backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(0,0,0,0.4) 3px, rgba(0,0,0,0.4) 6px)'
-               }}>
+          <div className="absolute inset-0"
+            style={{
+              backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(0,0,0,0.4) 3px, rgba(0,0,0,0.4) 6px)'
+            }}>
           </div>
         </div>
         <span className="text-sm text-gray-700 font-medium">Balita Tidak Stunting</span>
@@ -233,19 +233,18 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen flex bg-gradient-to-b from-blue-50 to-white text-gray-800 relative overflow-hidden">
       <aside
-        className={`fixed top-0 left-0 h-full w-64 z-40 bg-teal-700 text-white border-r border-teal-800 shadow-2xl transition-transform duration-500 ease-[cubic-bezier(0.77,0,0.175,1)] ${
-          open ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed top-0 left-0 h-full w-64 z-40 bg-teal-700 text-white border-r border-teal-800 shadow-2xl transition-transform duration-500 ease-[cubic-bezier(0.77,0,0.175,1)] ${open ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         <div className="flex items-center justify-between p-5 border-b border-white/30">
           <div className="flex items-center justify-between p-1">
-          <div>
-            <h2 className="font-bold text-xl tracking-wide text-white drop-shadow-lg">
-              POSYANDU
-            </h2>
-            <p className="text-xs text-white/80 mt-1">Bunga Lily Gendeng</p>
+            <div>
+              <h2 className="font-bold text-xl tracking-wide text-white drop-shadow-lg">
+                POSYANDU
+              </h2>
+              <p className="text-xs text-white/80 mt-1">Bunga Lily Gendeng</p>
+            </div>
           </div>
-        </div>
           <button
             onClick={() => setOpen(false)}
             className="p-2 rounded-lg hover:bg-white/20 transition md:hidden"
@@ -276,9 +275,8 @@ const Dashboard = () => {
       )}
 
       <main
-        className={`flex-1 p-6 md:p-8 transition-all duration-500 ${
-          open ? "blur-sm scale-[0.98]" : ""
-        }`}
+        className={`flex-1 p-6 md:p-8 transition-all duration-500 ${open ? "blur-sm scale-[0.98]" : ""
+          }`}
       >
         <div className="flex items-center gap-4 mb-10">
           <button
@@ -345,7 +343,7 @@ const Dashboard = () => {
             <p className="text-xs text-gray-500 mb-3">
               Periode: {monthNames[bulan - 1]} {tahun}
             </p>
-            
+
             <div className="flex items-center justify-center gap-4 mb-4">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded-full bg-red-600"></div>
@@ -362,12 +360,12 @@ const Dashboard = () => {
                 <>
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
-                      <Pie 
-                        data={dataBalitaPie} 
-                        dataKey="value" 
-                        nameKey="name" 
-                        innerRadius={60} 
-                        outerRadius={100} 
+                      <Pie
+                        data={dataBalitaPie}
+                        dataKey="value"
+                        nameKey="name"
+                        innerRadius={60}
+                        outerRadius={100}
                         label
                       >
                         {dataBalitaPie.map((entry, index) => (
@@ -398,7 +396,7 @@ const Dashboard = () => {
             <p className="text-xs text-gray-500 mb-3">
               Periode: {monthNames[bulan - 1]} {tahun}
             </p>
-            
+
             <div className="flex items-center justify-center gap-4 mb-4">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded-full bg-red-600"></div>
@@ -415,12 +413,12 @@ const Dashboard = () => {
                 <>
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
-                      <Pie 
-                        data={dataIbuPie} 
-                        dataKey="value" 
-                        nameKey="name" 
-                        innerRadius={60} 
-                        outerRadius={100} 
+                      <Pie
+                        data={dataIbuPie}
+                        dataKey="value"
+                        nameKey="name"
+                        innerRadius={60}
+                        outerRadius={100}
                         label
                       >
                         {dataIbuPie.map((entry, index) => (
@@ -452,51 +450,54 @@ const Dashboard = () => {
           <p className="text-sm text-gray-500 mb-4">
             Menampilkan data {monthNames[bulan - 1]} {tahun} dan 3 bulan sebelumnya
           </p>
-          
+
           {trendData.length > 0 ? (
             <>
               <CustomLegend />
-              
+
               {!isMobile ? (
                 <ResponsiveContainer width="100%" height={450}>
                   <ComposedChart data={trendData} layout="horizontal">
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                      dataKey="name" 
-                      angle={-15} 
-                      textAnchor="end" 
+                    <XAxis
+                      dataKey="name"
+                      angle={-15}
+                      textAnchor="end"
                       height={80}
                       style={{ fontSize: '12px' }}
                     />
-                    <YAxis />
-                    <Tooltip 
-                      contentStyle={{ 
+                    <YAxis
+                      allowDecimals={false}
+                      domain={[0, (dataMax) => Math.max(30, Math.ceil(dataMax))]}
+                    />
+                    <Tooltip
+                      contentStyle={{
                         backgroundColor: 'rgba(255, 255, 255, 0.95)',
                         borderRadius: '8px',
                         border: '1px solid #e5e7eb'
                       }}
                     />
-                    <Bar 
-                      dataKey="balitaStunting" 
-                      fill="url(#stripesRedBlack)" 
+                    <Bar
+                      dataKey="balitaStunting"
+                      fill="url(#stripesRedBlack)"
                       name="Balita Stunting"
                       radius={[4, 4, 0, 0]}
                     />
-                    <Bar 
-                      dataKey="balitaTidakStunting" 
-                      fill="url(#stripesTealBlack)" 
+                    <Bar
+                      dataKey="balitaTidakStunting"
+                      fill="url(#stripesTealBlack)"
                       name="Balita Tidak Stunting"
                       radius={[4, 4, 0, 0]}
                     />
-                    <Bar 
-                      dataKey="ibuHamilStunting" 
-                      fill="#dc2626" 
+                    <Bar
+                      dataKey="ibuHamilStunting"
+                      fill="#dc2626"
                       name="Ibu Hamil Stunting"
                       radius={[4, 4, 0, 0]}
                     />
-                    <Bar 
-                      dataKey="ibuHamilTidakStunting" 
-                      fill="#0d9488" 
+                    <Bar
+                      dataKey="ibuHamilTidakStunting"
+                      fill="#0d9488"
                       name="Ibu Hamil Tidak Stunting"
                       radius={[4, 4, 0, 0]}
                     />
@@ -515,51 +516,56 @@ const Dashboard = () => {
               ) : (
                 <div className="overflow-x-auto">
                   <ResponsiveContainer width="100%" height={600}>
-                    <ComposedChart 
-                      data={trendData} 
+                    <ComposedChart
+                      data={trendData}
                       layout="vertical"
                       margin={{ top: 20, right: 30, bottom: 20, left: 100 }}
                     >
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis type="number" style={{ fontSize: '11px' }} />
-                      <YAxis 
-                        type="category" 
-                        dataKey="name" 
+                      <XAxis
+                        type="number"
+                        style={{ fontSize: '11px' }}
+                        allowDecimals={false}
+                        domain={[0, (dataMax) => Math.max(30, Math.ceil(dataMax))]}
+                      />
+                      <YAxis
+                        type="category"
+                        dataKey="name"
                         width={90}
                         style={{ fontSize: '11px' }}
                       />
-                      <Tooltip 
-                        contentStyle={{ 
+                      <Tooltip
+                        contentStyle={{
                           backgroundColor: 'rgba(255, 255, 255, 0.95)',
                           borderRadius: '8px',
                           border: '1px solid #e5e7eb',
                           fontSize: '12px'
                         }}
                       />
-                      <Bar 
-                        dataKey="balitaStunting" 
-                        fill="url(#stripesRedBlack)" 
+                      <Bar
+                        dataKey="balitaStunting"
+                        fill="url(#stripesRedBlack)"
                         name="Balita Stunting"
                         radius={[0, 4, 4, 0]}
                         barSize={20}
                       />
-                      <Bar 
-                        dataKey="balitaTidakStunting" 
-                        fill="url(#stripesTealBlack)" 
+                      <Bar
+                        dataKey="balitaTidakStunting"
+                        fill="url(#stripesTealBlack)"
                         name="Balita Tidak Stunting"
                         radius={[0, 4, 4, 0]}
                         barSize={20}
                       />
-                      <Bar 
-                        dataKey="ibuHamilStunting" 
-                        fill="#dc2626" 
+                      <Bar
+                        dataKey="ibuHamilStunting"
+                        fill="#dc2626"
                         name="Ibu Hamil Stunting"
                         radius={[0, 4, 4, 0]}
                         barSize={20}
                       />
-                      <Bar 
-                        dataKey="ibuHamilTidakStunting" 
-                        fill="#0d9488" 
+                      <Bar
+                        dataKey="ibuHamilTidakStunting"
+                        fill="#0d9488"
                         name="Ibu Hamil Tidak Stunting"
                         radius={[0, 4, 4, 0]}
                         barSize={20}
