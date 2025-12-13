@@ -67,7 +67,7 @@ const Login = () => {
             <p className="text-sm text-gray-600">Posyandu Bunga Lily Gendeng</p>
           </div>
 
-          <div className="space-y-5">
+          <form onSubmit={handleLogin} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
               <input
@@ -75,9 +75,9 @@ const Login = () => {
                 placeholder="Masukkan Username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className={`w-full border rounded-full px-4 py-3 focus:outline-none focus:ring-2 transition-all ${
-                  errors.username ? "border-red-500 focus:ring-red-400" : "border-gray-300 focus:ring-teal-400"
-                }`}
+                autoComplete="username"
+                className={`w-full border rounded-full px-4 py-3 focus:outline-none focus:ring-2 transition-all ${errors.username ? "border-red-500 focus:ring-red-400" : "border-gray-300 focus:ring-teal-400"
+                  }`}
               />
               {errors.username && <p className="text-red-500 text-xs mt-2 ml-2">{errors.username}</p>}
             </div>
@@ -90,9 +90,9 @@ const Login = () => {
                   placeholder="Masukkan Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className={`w-full border rounded-full px-4 py-3 pr-12 focus:outline-none focus:ring-2 transition-all ${
-                    errors.password ? "border-red-500 focus:ring-red-400" : "border-gray-300 focus:ring-teal-400"
-                  }`}
+                  autoComplete="current-password"
+                  className={`w-full border rounded-full px-4 py-3 pr-12 focus:outline-none focus:ring-2 transition-all ${errors.password ? "border-red-500 focus:ring-red-400" : "border-gray-300 focus:ring-teal-400"
+                    }`}
                 />
                 <button
                   type="button"
@@ -112,12 +112,12 @@ const Login = () => {
             )}
 
             <button
-              onClick={handleLogin}
+              type="submit"
               className="w-full bg-gradient-to-r from-teal-500 to-teal-400 text-white font-semibold py-3 rounded-full hover:from-teal-600 hover:to-teal-500 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
             >
               Login
             </button>
-          </div>
+          </form>
 
           <p className="text-center text-xs text-gray-500 mt-6 md:hidden">
             © 2025 Posyandu Bunga Lily Gendeng. All rights reserved.

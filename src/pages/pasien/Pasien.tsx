@@ -15,10 +15,10 @@ import API from "../../api/axiosInstance";
 const Pasien = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
-  
+
   const getInitialFilter = (): "balita" | "ibuHamil" => {
     if (location.state?.filter) {
       return location.state.filter;
@@ -69,12 +69,12 @@ const Pasien = () => {
     try {
       const token = localStorage.getItem("token");
       await API.post(
-      "/api/logout",{}, 
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+        "/api/auth/logout", {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
@@ -127,13 +127,13 @@ const Pasien = () => {
       >
         <div className="flex items-center justify-between p-5 border-b border-white/30">
           <div className="flex items-center justify-between p-1">
-          <div>
-            <h2 className="font-bold text-xl tracking-wide text-white drop-shadow-lg">
-              POSYANDU
-            </h2>
-            <p className="text-xs text-white/80 mt-1">Bunga Lily Gendeng</p>
+            <div>
+              <h2 className="font-bold text-xl tracking-wide text-white drop-shadow-lg">
+                POSYANDU
+              </h2>
+              <p className="text-xs text-white/80 mt-1">Bunga Lily Gendeng</p>
+            </div>
           </div>
-        </div>
           <button
             onClick={() => setOpen(false)}
             className="p-2 rounded-lg hover:bg-white/20 transition md:hidden"
@@ -169,9 +169,8 @@ const Pasien = () => {
       )}
 
       <main
-        className={`flex-1 p-6 md:p-8 transition-all duration-500 ${
-          open ? "blur-sm scale-[0.98]" : ""
-        }`}
+        className={`flex-1 p-6 md:p-8 transition-all duration-500 ${open ? "blur-sm scale-[0.98]" : ""
+          }`}
       >
         <div className="flex items-center gap-4 mb-10">
           <button
@@ -193,21 +192,19 @@ const Pasien = () => {
           <div className="flex gap-3">
             <button
               onClick={() => setFilter("balita")}
-              className={`px-5 py-2 rounded-full font-medium shadow transition-all duration-200 ${
-                filter === "balita"
+              className={`px-5 py-2 rounded-full font-medium shadow transition-all duration-200 ${filter === "balita"
                   ? "bg-teal-600 text-white shadow-md"
                   : "bg-white border border-teal-400 text-teal-600 hover:bg-teal-50"
-              }`}
+                }`}
             >
               Balita
             </button>
             <button
               onClick={() => setFilter("ibuHamil")}
-              className={`px-5 py-2 rounded-full font-medium shadow transition-all duration-200 ${
-                filter === "ibuHamil"
+              className={`px-5 py-2 rounded-full font-medium shadow transition-all duration-200 ${filter === "ibuHamil"
                   ? "bg-teal-600 text-white shadow-md"
                   : "bg-white border border-teal-400 text-teal-600 hover:bg-teal-50"
-              }`}
+                }`}
             >
               Ibu Hamil
             </button>
@@ -225,9 +222,8 @@ const Pasien = () => {
           <Search className="text-gray-400 w-5 h-5" />
           <input
             type="text"
-            placeholder={`Cari nama ${
-              filter === "balita" ? "balita..." : "ibu hamil..."
-            }`}
+            placeholder={`Cari nama ${filter === "balita" ? "balita..." : "ibu hamil..."
+              }`}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="ml-3 w-full outline-none text-gray-700"
@@ -267,11 +263,10 @@ const Pasien = () => {
                     <td className="px-4 py-3">{item.rt}</td>
                     <td className="px-4 py-3">
                       <span
-                        className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-semibold ${
-                          item.gender === "P"
+                        className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-semibold ${item.gender === "P"
                             ? "bg-pink-100 text-pink-600"
                             : "bg-blue-100 text-blue-600"
-                        }`}
+                          }`}
                       >
                         {item.gender}
                       </span>

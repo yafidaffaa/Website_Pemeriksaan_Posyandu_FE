@@ -4,7 +4,7 @@ import { ArrowLeft, Edit, Trash2, UserPlus, User, Calendar, Phone, MapPin, Baby,
 import CustomAlert, { ConfirmDialog } from "../../components/CustomAlert";
 import API from "../../api/axiosInstance";
 
-export default function DetailPasien() {
+const Pasien = () => {
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -344,4 +344,6 @@ export default function DetailPasien() {
       </div>
     </>
   );
-}
+};
+
+export default Pasien;

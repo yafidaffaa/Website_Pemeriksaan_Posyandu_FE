@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Menu,
   X,
@@ -29,6 +29,8 @@ const Dashboard = () => {
   const [kaderName, setKaderName] = useState("Kader");
   const [role, setRole] = useState("");
   const [isMobile, setIsMobile] = useState(false);
+
+  const [isLoading, setIsLoading] = useState(true);
 
   const [bulan, setBulan] = useState(new Date().getMonth() + 1);
   const [tahun, setTahun] = useState(new Date().getFullYear());
@@ -71,81 +73,66 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    const fetchStatistik = async () => {
+    const fetchAllData = async () => {
+      setIsLoading(true);
       try {
         const token = localStorage.getItem("token");
-        const res = await API.get("/api/pasien/statistik", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = res.data;
-        if (data?.data) {
-          setStatistik({
-            balita: data.data.jumlahBalita,
-            ibu_hamil: data.data.jumlahIbuHamil,
-            total: data.data.totalPasien,
-          });
-        }
-      } catch (error) {
-        console.error("Gagal mengambil data statistik pasien:", error);
-      }
-    };
 
-    fetchStatistik();
-  }, []);
+        await Promise.all([
+          // Fetch Statistik Pasien
+          API.get("/api/pasien/statistik", {
+            headers: { Authorization: `Bearer ${token}` },
+          }).then(res => {
+            if (res.data?.data) {
+              setStatistik({
+                balita: res.data.data.jumlahBalita,
+                ibu_hamil: res.data.data.jumlahIbuHamil,
+                total: res.data.data.totalPasien,
+              });
+            }
+          }).catch(error => {
+            console.error("Gagal mengambil data statistik pasien:", error);
+          }),
 
-  useEffect(() => {
-    const fetchStuntingStats = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await API.get(
-          "/api/measurement/statistics/stunting",
-          {
+          // Fetch Stunting Stats
+          API.get("/api/measurement/statistics/stunting", {
             params: { month: bulan, year: tahun },
             headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        const data = res.data;
-        if (data?.data) {
-          setStuntingStats({
-            balita: {
-              stunting: data.data.balita.stunting,
-              tidakStunting: data.data.balita.tidakStunting
-            },
-            ibu_hamil: {
-              stunting: data.data.ibu_hamil.stunting,
-              tidakStunting: data.data.ibu_hamil.tidakStunting
+          }).then(res => {
+            if (res.data?.data) {
+              setStuntingStats({
+                balita: {
+                  stunting: res.data.data.balita.stunting,
+                  tidakStunting: res.data.data.balita.tidakStunting
+                },
+                ibu_hamil: {
+                  stunting: res.data.data.ibu_hamil.stunting,
+                  tidakStunting: res.data.data.ibu_hamil.tidakStunting
+                }
+              });
             }
-          });
-        }
-      } catch (error) {
-        console.error("Gagal mengambil data statistik stunting:", error);
-      }
-    };
+          }).catch(error => {
+            console.error("Gagal mengambil data statistik stunting:", error);
+          }),
 
-    fetchStuntingStats();
-  }, [bulan, tahun]);
-
-  useEffect(() => {
-    const fetchTrendData = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await API.get(
-          `/api/measurement/statistics/trends`,
-          {
+          // Fetch Trend Data
+          API.get("/api/measurement/statistics/trends", {
             params: { month: bulan, year: tahun },
             headers: { Authorization: `Bearer ${token}` }
-          }
-        );
-        const data = await res.data;
-        if (data?.data) {
-          setTrendData(data.data);
-        }
-      } catch (error) {
-        console.error("Gagal mengambil data trend stunting:", error);
+          }).then(res => {
+            if (res.data?.data) {
+              setTrendData(res.data.data);
+            }
+          }).catch(error => {
+            console.error("Gagal mengambil data trend stunting:", error);
+          })
+        ]);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    fetchTrendData();
+    fetchAllData();
   }, [bulan, tahun]);
 
   const handleLogout = async () => {
@@ -180,17 +167,25 @@ const Dashboard = () => {
     { name: "Logout", icon: <LogOut className="w-5 h-5" /> },
   ];
 
-  const dataBalitaPie = [
+  const dataBalitaPie = useMemo(() => [
     { name: "Stunting", value: stuntingStats.balita.stunting },
     { name: "Tidak Stunting", value: stuntingStats.balita.tidakStunting },
-  ];
-  const totalBalita = dataBalitaPie.reduce((acc, d) => acc + d.value, 0);
+  ], [stuntingStats.balita]);
 
-  const dataIbuPie = [
+  const totalBalita = useMemo(() =>
+    dataBalitaPie.reduce((acc, d) => acc + d.value, 0),
+    [dataBalitaPie]
+  );
+
+  const dataIbuPie = useMemo(() => [
     { name: "Stunting", value: stuntingStats.ibu_hamil.stunting },
     { name: "Tidak Stunting", value: stuntingStats.ibu_hamil.tidakStunting },
-  ];
-  const totalIbu = dataIbuPie.reduce((acc, d) => acc + d.value, 0);
+  ], [stuntingStats.ibu_hamil]);
+
+  const totalIbu = useMemo(() =>
+    dataIbuPie.reduce((acc, d) => acc + d.value, 0),
+    [dataIbuPie]
+  );
 
   const monthNames = [
     "Januari", "Februari", "Maret", "April", "Mei", "Juni",
@@ -229,6 +224,17 @@ const Dashboard = () => {
       </div>
     </div>
   );
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-50 to-white">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Memuat data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex bg-gradient-to-b from-blue-50 to-white text-gray-800 relative overflow-hidden">

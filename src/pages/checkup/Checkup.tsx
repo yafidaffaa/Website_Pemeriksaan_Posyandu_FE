@@ -235,8 +235,8 @@ const Checkup = () => {
         type: "success",
         title: "Laporan Berhasil Diunduh",
         message: `Laporan ${typeLabel} ${type === "penerima-manfaat"
-            ? "Ibu Hamil"
-            : `untuk ${patientTypeLabel}`
+          ? "Ibu Hamil"
+          : `untuk ${patientTypeLabel}`
           } bulan ${monthName} ${year} berhasil diunduh.`,
         suggestion:
           "File Excel telah tersimpan di folder Downloads Anda. Anda dapat membukanya dengan Microsoft Excel atau aplikasi spreadsheet lainnya.",
@@ -244,7 +244,6 @@ const Checkup = () => {
     } catch (error: any) {
       console.error("Gagal mencetak laporan:", error);
 
-      // ✅ Tangani error 404 dengan pesan yang lebih spesifik
       if (error.response?.status === 404) {
         setAlert({
           show: true,
@@ -367,8 +366,8 @@ const Checkup = () => {
               <button
                 onClick={() => setFilter("balita")}
                 className={`px-5 py-2 rounded-full font-medium shadow transition-all duration-200 ${filter === "balita"
-                    ? "bg-teal-600 text-white shadow-md"
-                    : "bg-white border border-teal-400 text-teal-600 hover:bg-teal-50"
+                  ? "bg-teal-600 text-white shadow-md"
+                  : "bg-white border border-teal-400 text-teal-600 hover:bg-teal-50"
                   }`}
               >
                 Balita
@@ -376,8 +375,8 @@ const Checkup = () => {
               <button
                 onClick={() => setFilter("ibuHamil")}
                 className={`px-5 py-2 rounded-full font-medium shadow transition-all duration-200 ${filter === "ibuHamil"
-                    ? "bg-teal-600 text-white shadow-md"
-                    : "bg-white border border-teal-400 text-teal-600 hover:bg-teal-50"
+                  ? "bg-teal-600 text-white shadow-md"
+                  : "bg-white border border-teal-400 text-teal-600 hover:bg-teal-50"
                   }`}
               >
                 Ibu Hamil
@@ -443,8 +442,8 @@ const Checkup = () => {
           <input
             type="text"
             placeholder={`Cari ${filter === "balita"
-                ? "nama ibu atau anak..."
-                : "nama ibu hamil..."
+              ? "nama ibu atau anak..."
+              : "nama ibu hamil..."
               }`}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -503,8 +502,8 @@ const Checkup = () => {
                       <td className="px-4 py-3">
                         <span
                           className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-semibold ${patient.gender === "P"
-                              ? "bg-pink-100 text-pink-600"
-                              : "bg-blue-100 text-blue-600"
+                            ? "bg-pink-100 text-pink-600"
+                            : "bg-blue-100 text-blue-600"
                             }`}
                         >
                           {patient.gender}
@@ -513,8 +512,8 @@ const Checkup = () => {
                       <td className="px-4 py-3">
                         <span
                           className={`px-3 py-1 text-xs font-semibold rounded-full ${status
-                              ? "bg-green-100 text-green-700"
-                              : "bg-red-100 text-red-600"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-600"
                             }`}
                         >
                           {status ? "Sudah Lengkap" : "Belum Lengkap"}
@@ -537,8 +536,8 @@ const Checkup = () => {
                       <td className="px-4 py-3">
                         <span
                           className={`px-3 py-1 text-xs font-semibold rounded-full ${status
-                              ? "bg-green-100 text-green-700"
-                              : "bg-red-100 text-red-600"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-600"
                             }`}
                         >
                           {status ? "Sudah Lengkap" : "Belum Lengkap"}
